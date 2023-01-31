@@ -28,7 +28,7 @@ app.post("/upload", upload.single("file"), (req: Request, res: Response) => {
   if (req.file?.path != null) {
     fs.readFile(req.file.path, (err) => {
       if (err != null) {
-        console.log("Error: ", err);
+        console.error("Error: ", err);
         res.status(500).json({ error: err });
       } else {
         if ((req.file?.filename) != null)
@@ -45,7 +45,6 @@ app.post("/upload", upload.single("file"), (req: Request, res: Response) => {
 
 app.get("/files/:filename", (req, res) => {
   const file = path.join(__dirname, "/../uploads", req.params.filename);
-  console.log("file", file);
   fs.readFile(file, (err, content) => {
     if (err != null) {
       res.writeHead(404, { "Content-Type": "text" });
