@@ -3,9 +3,13 @@ import cors from "cors";
 import multer from "multer";
 import fs from "fs";
 import path from "path";
+import { auth } from "./services/auth";
+import dotenv from "dotenv";
+
+dotenv.config();
 
 const app = express();
-const port = 8000;
+const port = process.env.PORT ?? 8000;
 
 app.use(cors());
 app.use(express.json());
@@ -16,7 +20,8 @@ app.get("/", (_, res) => {
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, path.join(__dirname, "../uploads/"));
+    const dirPath = path.join(__dirname, "../uploads/")
+    cb(null, dirPath);
   },
   filename: function (req, file, cb) {
     cb(null, `${Date.now()}-${file.originalname}`);
@@ -24,29 +29,32 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage });
 
-app.post("/upload", upload.single("file"), (req: Request, res: Response) => {
-  if (req.file?.path != null) {
-    fs.readFile(req.file.path, (err) => {
-      if (err != null) {
-        console.error("Error: ", err);
-        res.status(500).json({ error: err });
-      } else {
-        if ((req.file?.filename) != null)
-          res
-            .status(201)
-            .json({
+app.post(
+  "/upload",
+  auth,
+  upload.single("file"),
+  (req: Request, res: Response) => {
+    if (req.file?.path) {
+      fs.readFile(req.file.path, (err) => {
+        if (err) {
+          console.error("Error: ", err);
+          res.status(500).json({ error: err });
+        } else {
+          if (req.file?.filename)
+            res.status(201).json({
               status: "success",
               filename: "/files/" + req.file.filename,
             });
-      }
-    });
+        }
+      });
+    }
   }
-});
+);
 
 app.get("/files/:filename", (req, res) => {
   const file = path.join(__dirname, "/../uploads", req.params.filename);
   fs.readFile(file, (err, content) => {
-    if (err != null) {
+    if (err) {
       res.writeHead(404, { "Content-Type": "text" });
       res.write("File Not Found!");
       res.end();
