@@ -31,7 +31,7 @@ const upload = multer({ storage });
 
 const router = express.Router();
 
-// Routes for an user
+/*  Routes for an user */
 router.post(
   "/upload/avatar",
   auth,
@@ -39,8 +39,10 @@ router.post(
   AvatarController.create
 );
 router.get("/users/:user/avatars/:filename", AvatarController.read);
+router.delete("/delete/avatars/:filename", auth, AvatarController.delete);
+router.delete("/delete-user", auth, AvatarController.deleteAll);
 
-// Routes for a blog
+/* Routes for a blog */
 router.post(
   "/upload/blog/:blog/cover",
   auth,
@@ -48,14 +50,33 @@ router.post(
   BlogController.create
 );
 router.get("/users/:user/blogs/:blog/covers/:filename", BlogController.read);
+router.delete(
+  "/delete/blogs/:blog/covers/:filename",
+  auth,
+  BlogController.delete
+);
+router.delete(
+  "/delete-blog/:blog",
+  auth,
+  BlogController.deleteAll
+);
 
-// Routes for an article
+/* Routes for an article */
 router.post(
   "/upload/blog/:blog/article/:article",
   auth,
   upload.single("file"),
   ArticleController.create
 );
-router.get("/users/:user/blogs/:blog/articles/:article/files/:filename", ArticleController.read);
+router.get(
+  "/users/:user/blogs/:blog/articles/:article/files/:filename",
+  ArticleController.read
+);
+router.delete(
+  "/delete/blogs/:blog/articles/:article/files/:filename",
+  auth,
+  ArticleController.delete
+);
+
 
 export default router;
