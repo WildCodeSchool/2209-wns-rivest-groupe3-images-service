@@ -5,6 +5,7 @@ export const JWT_SECRET_KEY: Secret = process.env.JWT_SECRET_KEY ?? "";
 
 export interface CustomRequest extends Request {
   token: string | JwtPayload;
+  userId: string;
 }
 
 export const auth = async (
@@ -21,8 +22,10 @@ export const auth = async (
 
     const decoded = jwt.verify(token, JWT_SECRET_KEY);
     (req as CustomRequest).token = decoded;
-
-    console.log(decoded);
+    if (typeof decoded === "string") {
+      throw new Error();
+    }
+    (req as CustomRequest).userId = decoded.userId;
     next();
   } catch (err) {
     res.status(401).send("Please authenticate");
