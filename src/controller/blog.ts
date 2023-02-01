@@ -26,6 +26,7 @@ const BlogController = {
       });
     }
   },
+
   read: (req: Request, res: Response) => {
     const file = path.join(
       __dirname,
@@ -47,6 +48,45 @@ const BlogController = {
       }
     });
   },
+
+  update: (req: Request, res: Response) => {
+    const dataReq = req as CustomRequest;
+    const userId = dataReq.userId;
+    const blog = dataReq.params.blog;
+    const oldFile = path.join(
+      __dirname,
+      "/../../uploads/",
+      userId,
+      req.params.blog,
+      req.params.oldFilename
+    );
+
+    if (req.file?.path) {
+      fs.readFile(req.file.path, (err) => {
+        if (err) {
+          console.error("Error: ", err);
+          res.status(500).json({ error: err });
+        } else {
+          if (req.file?.filename) {
+            const imgPath = `/users/${userId}/blogs/${blog}/covers/${req.file.filename}`;
+            fs.unlink(oldFile, (err) => {
+              if (err) {
+                res.writeHead(404, { "Content-Type": "text" });
+                res.write("File Not Found!");
+                res.end();
+              } else {
+                res.status(201).json({
+                  status: "success",
+                  filename: imgPath,
+                });
+              }
+            });
+          }
+        }
+      });
+    }
+  },
+
   delete: (req: Request, res: Response) => {
     const dataReq = req as CustomRequest;
     const userId = dataReq.userId;
@@ -70,6 +110,7 @@ const BlogController = {
       }
     });
   },
+  
   deleteAll: (req: Request, res: Response) => {
     const dataReq = req as CustomRequest;
     const userId = dataReq.userId;

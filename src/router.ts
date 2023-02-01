@@ -39,6 +39,12 @@ router.post(
   AvatarController.create
 );
 router.get("/users/:user/avatars/:filename", AvatarController.read);
+router.put(
+  "/update-avatar/:oldFilename",
+  auth,
+  upload.single("file"),
+  AvatarController.update
+);
 router.delete("/delete/avatars/:filename", auth, AvatarController.delete);
 router.delete("/delete-user", auth, AvatarController.deleteAll);
 
@@ -50,16 +56,18 @@ router.post(
   BlogController.create
 );
 router.get("/users/:user/blogs/:blog/covers/:filename", BlogController.read);
+router.put(
+  "/update/blogs/:blog/covers/:oldFilename",
+  auth,
+  upload.single("file"),
+  BlogController.update
+);
 router.delete(
   "/delete/blogs/:blog/covers/:filename",
   auth,
   BlogController.delete
 );
-router.delete(
-  "/delete-blog/:blog",
-  auth,
-  BlogController.deleteAll
-);
+router.delete("/delete-blog/:blog", auth, BlogController.deleteAll);
 
 /* Routes for an article */
 router.post(
@@ -72,11 +80,16 @@ router.get(
   "/users/:user/blogs/:blog/articles/:article/files/:filename",
   ArticleController.read
 );
+router.put(
+  "/update/blogs/:blog/articles/:article/files/:oldFilename",
+  auth,
+  upload.single("file"),
+  ArticleController.update
+);
 router.delete(
   "/delete/blogs/:blog/articles/:article/files/:filename",
   auth,
   ArticleController.delete
 );
-
 
 export default router;
