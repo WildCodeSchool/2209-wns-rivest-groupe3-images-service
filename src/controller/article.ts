@@ -26,6 +26,7 @@ const ArticleController = {
       });
     }
   },
+
   read: (req: Request, res: Response) => {
     const { user, blog, article, filename } = req.params;
     const file = path.join(
@@ -49,10 +50,50 @@ const ArticleController = {
       }
     });
   },
+  
+  update: (req: Request, res: Response) => {
+    const dataReq = req as CustomRequest;
+    const userId = dataReq.userId;
+    const { article, blog, oldFilename } = dataReq.params;
+    const oldFile = path.join(
+      __dirname,
+      "/../../uploads/",
+      userId,
+      blog,
+      article,
+      oldFilename
+    );
+
+    if (req.file?.path) {
+      fs.readFile(req.file.path, (err) => {
+        if (err) {
+          console.error("Error: ", err);
+          res.status(500).json({ error: err });
+        } else {
+          if (req.file?.filename) {
+            const imgPath = `/users/${userId}/blogs/${blog}/articles/${article}/files/${req.file.filename}`;
+            fs.unlink(oldFile, (err) => {
+              if (err) {
+                res.writeHead(404, { "Content-Type": "text" });
+                res.write("File Not Found!");
+                res.end();
+              } else {
+                res.status(201).json({
+                  status: "success",
+                  filename: imgPath,
+                });
+              }
+            });
+          }
+        }
+      });
+    }
+  },
+
   delete: (req: Request, res: Response) => {
     const dataReq = req as CustomRequest;
     const userId = dataReq.userId;
-    const {blog, article, filename} = req.params
+    const { blog, article, filename } = req.params;
 
     const file = path.join(
       __dirname,
@@ -63,16 +104,16 @@ const ArticleController = {
       filename
     );
     fs.unlink(file, (err) => {
-      if(err) {
+      if (err) {
         res.writeHead(404, { "Content-Type": "text" });
         res.write("File Not Found!");
         res.end();
-      }else {
+      } else {
         res.writeHead(202, { "Content-Type": "application/octet-stream" });
         res.write("File deleted successfully !");
         res.end();
       }
-    })
+    });
   },
 };
 
