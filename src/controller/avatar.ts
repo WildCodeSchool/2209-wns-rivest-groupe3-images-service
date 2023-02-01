@@ -34,7 +34,7 @@ const AvatarController = {
     );
     fs.readFile(file, (err, content) => {
       if (err) {
-        console.log("err", err)
+        console.log("err", err);
         res.writeHead(404, { "Content-Type": "text" });
         res.write("File Not Found!");
         res.end();
@@ -44,6 +44,42 @@ const AvatarController = {
         res.end();
       }
     });
+  },
+  delete: (req: Request, res: Response) => {
+    const dataReq = req as CustomRequest;
+    const userId = dataReq.userId;
+
+    const file = path.join(
+      __dirname,
+      "/../../uploads/",
+      userId,
+      req.params.filename
+    );
+    fs.unlink(file, (err) => {
+      if (err) {
+        res.writeHead(404, { "Content-Type": "text" });
+        res.write("File Not Found!");
+        res.end();
+      } else {
+        res.writeHead(202, { "Content-Type": "application/octet-stream" });
+        res.write("File deleted successfully !");
+        res.end();
+      }
+    });
+  },
+  deleteAll: (req: Request, res: Response) => {
+    const dataReq = req as CustomRequest;
+    const userId = dataReq.userId;
+
+    const directory = path.join(__dirname, "/../../uploads/", userId, "/");
+    if (fs.existsSync(directory)) {
+      fs.rmdirSync(directory, { recursive: true });
+      res.writeHead(202, { "Content-Type": "application/octet-stream" });
+      res.write("User deleted successfully !");
+      res.end();
+    } else {
+      throw new Error("User Not Found");
+    }
   },
 };
 
