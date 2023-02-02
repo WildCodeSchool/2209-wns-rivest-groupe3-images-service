@@ -6,6 +6,7 @@ import { auth, CustomRequest } from "./services/auth";
 import AvatarController from "./controller/avatar";
 import BlogController from "./controller/blog";
 import ArticleController from "./controller/article";
+import slugify from "slugify";
 
 const storage = multer.diskStorage({
   destination: function (req, _, cb) {
@@ -24,7 +25,15 @@ const storage = multer.diskStorage({
     cb(null, dirPath);
   },
   filename: function (_, file, cb) {
-    cb(null, `${Date.now()}-${file.originalname}`);
+    const newFileName = slugify(file.originalname, {
+      replacement: '-',
+      remove: /[*+~.()'"!:@]/g,
+      lower: true,
+      strict: true,
+      locale: 'vi',
+      trim: true,
+    })
+    cb(null, `${Date.now()}-${newFileName}`);
   },
 });
 const upload = multer({ storage });
