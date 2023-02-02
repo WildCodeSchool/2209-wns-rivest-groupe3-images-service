@@ -25,7 +25,11 @@ const storage = multer.diskStorage({
     cb(null, dirPath);
   },
   filename: function (_, file, cb) {
-    const newFileName = slugify(file.originalname, {
+    const fileArr = file.originalname.split(".")
+    const extension = fileArr.pop() ?? ""
+    const filename = fileArr.join(".")
+
+    const newFileName = slugify(filename, {
       replacement: '-',
       remove: /[*+~.()'"!:@]/g,
       lower: true,
@@ -33,7 +37,7 @@ const storage = multer.diskStorage({
       locale: 'vi',
       trim: true,
     })
-    cb(null, `${Date.now()}-${newFileName}`);
+    cb(null, `${Date.now()}-${newFileName}.${extension}`);
   },
 });
 const upload = multer({ storage });
